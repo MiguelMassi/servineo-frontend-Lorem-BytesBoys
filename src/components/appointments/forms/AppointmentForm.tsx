@@ -83,6 +83,9 @@ const AppointmentForm = forwardRef<AppointmentFormHandle, AppointmentFormProps>(
         modality: "virtual" | "presential";
         locationOrLink: string;
         description?: string;
+        errorCause?: string;          // Nueva propiedad para mostrar errores
+        channelsSent?: string[];      // canales enviados
+        channelsFailed?: string[];    // canales fallidos
     } | null>(null);
 
     const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -189,7 +192,7 @@ const AppointmentForm = forwardRef<AppointmentFormHandle, AppointmentFormProps>(
 
         setLoading(true);
         try {
-            const res = await axios.post("https://servineo-backend-lorem.onrender.com/api/crud_create/appointments/create", payload);
+            const res = await axios.post("http://localhost:3000/api/crud_create/appointments/create", payload);
             const data = res.data;
 
             if (data && data.success === false) {
@@ -217,16 +220,56 @@ const AppointmentForm = forwardRef<AppointmentFormHandle, AppointmentFormProps>(
                     modality,
                     locationOrLink: modality === "virtual" ? meetingLink : place,
                     description,
+                    channelsSent: data.channelsSent,       //  canales enviados
+                    channelsFailed: data.channelsFailed,   //  canales fallidos
                 });
                 setShowSummary(true);
             }
         } catch (err: any) {
-            console.error(err);
-            setErrors({ general: "Error: No se pudo crear la cita" });
-        } finally {
+            console.error("Error al crear cita:", err);
+
+            let backendMessage = "Ocurrió un error desconocido.";
+
+            if (err.response) {
+                // ❌ El servidor respondió (con error 4xx o 5xx)
+                backendMessage =
+                    err.response.data?.message ||
+                    `El servidor devolvió un error (${err.response.status}).`;
+            } else if (err.request) {
+                // 🚫 No hubo respuesta del servidor (sin internet o backend caído)
+                if (!window.navigator.onLine) {
+                    backendMessage = "No hay conexión a internet. Verifica tu red.";
+                } else {
+                    backendMessage = "El servidor no responde. Puede estar temporalmente fuera de servicio.";
+                }
+            } else {
+                // ⚙️ Error al configurar la petición
+                backendMessage = `Error en la solicitud: ${err.message}`;
+            }
+
+            // Evitar botón trabado
             setLoading(false);
+
+            // Mostrar hora y detalles del error
+            const hourToShow = new Date(datetime).getUTCHours();
+            const hourToShowString =
+                (hourToShow < 10 ? "0" : "") + hourToShow.toString() + ":00";
+
+            setSummaryData({
+                title: "Error de creación",
+                name: client,
+                date: new Date(datetime).toLocaleDateString(),
+                time: hourToShowString,
+                modality,
+                locationOrLink: modality === "virtual" ? meetingLink : place,
+                description,
+                errorCause: backendMessage,}); 
+            setShowSummary(true); // 👈 Muestra el modal de resumen con el error
+        } finally {
+            setLoading(false); // Se asegura que se reactive el botón Añadir
         }
     }
+
 
     if (!open) return null;
 
