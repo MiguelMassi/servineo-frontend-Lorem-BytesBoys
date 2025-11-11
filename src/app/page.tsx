@@ -2,16 +2,18 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import NotificationSystem from "../components/NotificationSystem"; // 🔔 Importa el sistema completo
 
-// Array de nombres para selección aleatoria
+// Nombres aleatorios simulando distintos usuarios
 const availableNames = [
   "Diego Paredes",
-  "Franco Lopez"
+  "Franco Lopez",
 ];
 
 export default function Home() {
   const [randomName, setRandomName] = useState("John Doe");
 
+  // Asigna un nombre aleatorio al cargar la página
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * availableNames.length);
     setRandomName(availableNames[randomIndex]);
@@ -19,28 +21,35 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header Principal */}
-      <div className="border-b border-gray-200 p-4 lg:p-6">
-        <div className="max-w-6xl mx-auto">
-          {/* Contenido del header - siempre visible */}
+      {/* 🧭 HEADER PRINCIPAL */}
+      <div className="border-b border-gray-200 p-4 lg:p-6 relative">
+        <div className="max-w-6xl mx-auto flex flex-col lg:flex-row lg:items-center lg:justify-between">
+          
+          {/* 👤 Sección izquierda: Avatar + Nombre */}
           <div className="flex items-center space-x-4 mb-4 lg:mb-0">
-            {/* Avatar/Imagen de perfil */}
+            {/* Avatar redondo */}
             <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
               <span className="text-gray-600 font-medium text-lg">
                 {randomName.split(' ').map(n => n[0]).join('')}
               </span>
             </div>
+
+            {/* Nombre y rol */}
             <div>
               <div className="text-2xl lg:text-3xl font-bold text-gray-800">{randomName}</div>
               <div className="text-gray-500 text-sm lg:text-base">(Fixer)</div>
             </div>
           </div>
-          
-          {/* Botón Ver Calendario - debajo en mobile, al lado en desktop */}
-          <div className="lg:absolute lg:top-6 lg:right-6">
+
+          {/* 🔔 Sección derecha: Notificación + Botón de Calendario */}
+          <div className="flex items-center gap-4">
+            {/* Sistema completo de notificaciones */}
+            <NotificationSystem />
+
+            {/* Botón para ir al calendario */}
             <Link
               href="/calendar"
-              className="block lg:inline-block w-full lg:w-auto text-center bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+              className="block lg:inline-block text-center bg-gray-800 hover:bg-gray-900 text-white px-6 py-3 rounded-lg font-medium transition-colors"
             >
               Ver Calendario
             </Link>
@@ -48,17 +57,21 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Contenido principal */}
+      {/* 📄 CONTENIDO PRINCIPAL */}
       <div className="p-4 lg:p-8">
         <div className="max-w-4xl mx-auto">
           
-          {/* Sección 2.1 Net Admission */}
+          {/* Información del perfil */}
           <div className="mb-6 lg:mb-8">
-            <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-6">Informacion de Perfil</h2>
+            <h2 className="text-xl lg:text-2xl font-bold text-gray-800 mb-6">
+              Información de Perfil
+            </h2>
             
-            {/* Experiencia Previa */}
+            {/* Experiencia previa */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6 mb-4">
-              <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-3">Experiencia Previa</h3>
+              <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-3">
+                Experiencia Previa
+              </h3>
               <div className="text-gray-600">
                 <p>Información sobre experiencias y trabajos anteriores...</p>
               </div>
@@ -66,7 +79,9 @@ export default function Home() {
 
             {/* Reseñas */}
             <div className="bg-white rounded-lg border border-gray-200 p-4 lg:p-6">
-              <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-3">Reseñas</h3>
+              <h3 className="text-lg lg:text-xl font-bold text-gray-800 mb-3">
+                Reseñas
+              </h3>
               <div className="text-gray-600">
                 <p>Reseñas y comentarios de clientes...</p>
               </div>
