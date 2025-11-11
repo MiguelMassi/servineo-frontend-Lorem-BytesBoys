@@ -13,8 +13,8 @@ import useSixMonthsAppointments from '@/hooks/Appointments/useSixMonthsAppointme
 import { AppointmentsProvider } from "@/utils/contexts/AppointmentsContext/AppoinmentsContext";
 
 //const fixer_id = "68ef1993be38c7f1c3c2c777";
-const fixer_id = "68e87a9cdae3b73d8040102f";
-const requester_id = "68ec99ddf39c7c140f42fcfa";
+const fixer_id = "68f559f3f5c96a8e785049b2";
+const requester_id = "68f77eedbd5863ef506642bc";
 //const requester_id = "68f3f37a44d9cf8aa91537fb";
 
 function cancelAppointments() {

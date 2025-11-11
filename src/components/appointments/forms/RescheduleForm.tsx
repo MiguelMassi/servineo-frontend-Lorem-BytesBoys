@@ -5,6 +5,7 @@ import { z } from "zod";
 import LocationModal from "./LocationModal";
 import AppointmentSummaryModal from "./AppointmentSummaryModal";
 import MobileDayliView from "@/components/calendar/mobile/MobileDayliView";
+import { AppointmentsStatusProvider } from "@/utils/contexts/DayliViewRequesterContext";
 
 export type RescheduleFormHandle = {
   open: (newSlotISO?: string) => void;
@@ -48,7 +49,7 @@ const presentialSchema = baseSchema.extend({
 });
 const appointmentSchema = z.discriminatedUnion("modality", [virtualSchema, presentialSchema]);
 
-const API_BASE = process.env.NEXT_PUBLIC_BACKEND || "https://servineo-backend-lorem.onrender.com";
+const API_BASE = process.env.NEXT_PUBLIC_BACKEND || "http://localhost:3000";
 
 function ymd(iso: string) {
   const d = new Date(iso);
@@ -86,6 +87,8 @@ export default forwardRef<RescheduleFormHandle, RescheduleFormProps>(function Re
         name: string; date: string; time: string;
         modality: "virtual" | "presential"; locationOrLink: string;
         description?: string; motive?: string;
+        channelsSent?: string[]; // Añadido para mostrar en el resumen
+        channelsFailed?: string[]; // Añadido para mostrar en el resumen
     } | null>(null);
 
     const dialogRef = useRef<HTMLDivElement | null>(null);
@@ -256,6 +259,8 @@ export default forwardRef<RescheduleFormHandle, RescheduleFormProps>(function Re
         display_name_location: modality === "presential" ? place : "",
         lat: modality === "presential" ? location?.lat ?? null : null,
         lon: modality === "presential" ? location?.lon ?? null : null,
+        reprogram_reason: motivo, // Añadir el motivo de reprogramación
+        past_date_iso: pastDate, // Añadir la fecha anterior para notificación
     };
 
     const createRes = await axios.post(`${API_BASE}/api/crud_create/appointments/create`, createPayload, {
@@ -286,6 +291,8 @@ export default forwardRef<RescheduleFormHandle, RescheduleFormProps>(function Re
         locationOrLink: modality === "virtual" ? meetingLink : place,
         description,
         motive: motivo || undefined,
+        channelsSent: createData.channelsSent, // Capturar canales de la respuesta
+        channelsFailed: createData.channelsFailed,
     });
     setShowSummary(true);
     } catch (err: any) {
@@ -453,17 +460,23 @@ export default forwardRef<RescheduleFormHandle, RescheduleFormProps>(function Re
               </button>
             </div>
             <div className="overflow-auto" style={{ maxHeight: "calc(90vh - 80px)" }}>
-                <MobileDayliView
-                selectedDate={pickerSelectedDate}
-                fixerId={fixerId}
-                requesterId={requesterId}
-                onDateChange={handleDatePickerDateChange}
-                pickerMode={true}         // <--- activar modo "picker"
-                onSlotSelect={(iso: string) => {
-                    // recibe la ISO desde MobileDayliView y la procesa como antes
-                    handleDateTimeSelect(iso);
-                }}
-                />
+                <AppointmentsStatusProvider
+                    fixerId={fixerId} // Usar fixerId de RescheduleForm
+                    requesterId={requesterId} // Usar requesterId de RescheduleForm
+                    selectedDate={pickerSelectedDate} // Usar la fecha actual del picker
+                >
+                    <MobileDayliView
+                        selectedDate={pickerSelectedDate}
+                        fixerId={fixerId}
+                        requesterId={requesterId}
+                        onDateChange={handleDatePickerDateChange}
+                        pickerMode={true}         // <--- activar modo "picker"
+                        onSlotSelect={(iso: string) => {
+                            // recibe la ISO desde MobileDayliView y la procesa como antes
+                            handleDateTimeSelect(iso);
+                        }}
+                    />
+                </AppointmentsStatusProvider>
             </div>
           </div>
         </div>
