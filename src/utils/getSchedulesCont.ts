@@ -3,7 +3,7 @@ import axios from 'axios';
 export async function getSchedulesCont(fixer_id: string, selected_date: string) {
     try {
         const response = await axios.get(
-            'http://localhost:3000',
+            'https://servineo-backend-lorem.onrender.com/api/crud_read/appointments/get_appointments_date',
             {
                 params: {
                     id_fixer: fixer_id,

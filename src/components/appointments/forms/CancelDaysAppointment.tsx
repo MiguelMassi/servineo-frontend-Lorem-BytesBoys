@@ -39,7 +39,7 @@ export const CancelDaysAppointments: React.FC<CancelDaysAppointmentsProps> = ({
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [showConfirmPopup, setShowConfirmPopup] = useState(false); // Nuevo estado para el popup
   
-  const API_BASE = 'https://servineo-backend-lorem.onrender.com/api';
+  const API_BASE = 'http://localhost:3000/api';
   
   const months = [
     'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
